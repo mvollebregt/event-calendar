@@ -1,0 +1,11 @@
+# Ignore Gradle project-specific cache directory
+.gradle
+
+# Ignore IDE files
+.idea
+
+# Ignore Gradle build output directory
+build
+
+# Ignore secrets
+Secrets.kt
