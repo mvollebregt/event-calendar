@@ -5,9 +5,10 @@ import com.github.mvollebregt.concerts.parser.ParseSpec
 import com.github.mvollebregt.concerts.parser.html.CssSelector
 import com.github.mvollebregt.concerts.parser.html.HtmlDocument
 import com.github.mvollebregt.concerts.parser.parseConcerts
+import java.util.*
 
 fun main() {
-    parseConcerts(vera).forEach { println(it) }
+    parseConcerts(simplon).forEach { println(it) }
 }
 
 val vera = ParseSpec(
@@ -18,6 +19,7 @@ val vera = ParseSpec(
     artistSelector = CssSelector(".artist, .extra", directTextNodesOnly = true),
     dateSelector = CssSelector(".date"),
     datePattern = "EEEE d MMMM",
+    dateLocale = Locale.ENGLISH,
     venue = Venue("VERA Groningen", "https://www.vera-groningen.nl")
 )
 
@@ -30,4 +32,15 @@ val spot = ParseSpec(
     dateSelector = CssSelector("time", "datetime"),
     datePattern = "yyyy-MM-dd'T'HH:mm:ssXXX",
     venue = Venue("Spot Groningen", "https://www.spotgroningen.nl")
+)
+
+val simplon = ParseSpec(
+    document = HtmlDocument("https://www.simplon.nl"),
+    concertSelector = CssSelector("a.item"),
+    linkSelector = CssSelector(":root"),
+    titleSelector = CssSelector(".title"),
+    artistSelector = CssSelector(".title, .subtitle"),
+    dateSelector = CssSelector(".date"),
+    datePattern = "EE d MMMM yyyy",
+    venue = Venue("Simplon Groningen", "https://www.simplon.nl")
 )
