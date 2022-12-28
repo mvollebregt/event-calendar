@@ -1,52 +1,23 @@
 package com.github.mvollebregt.concerts.parser
 
 import com.github.mvollebregt.concerts.model.Concert
-import com.github.mvollebregt.concerts.model.Venue
-import org.jsoup.Jsoup
-import org.jsoup.nodes.Element
 import java.time.LocalDate
 import java.time.MonthDay
 import java.time.format.DateTimeFormatter
 import java.util.*
 
-fun parseConcerts(
-        url: String,
-        linkSelector: String,
-        concertSelector: String,
-        titleSelector: String,
-        artistSelector: String,
-        dateSelector: String,
-        datePattern: String,
-        venue: Venue
-): List<Concert> =
-        Jsoup.connect(url).get().select(concertSelector).map { concertElement ->
-            Concert(
-                    uri = concertElement.select(linkSelector).attr("href"),
-                    title = selectText(concertElement, titleSelector).joinToString(" "),
-                    artists = selectText(concertElement, artistSelector).flatMap { parseArtists(it) },
-                    date = selectDate(concertElement, dateSelector, datePattern),
-                    venue = venue
-            )
-        }
+fun <N, S> parseConcerts(spec: ParseSpec<N, S>): List<Concert> =
+    spec.document.selectNodes(spec.concertSelector).map { concertElement ->
+        Concert(
+            uri = spec.document.selectLinkText(concertElement, spec.linkSelector),
+            title = spec.document.selectText(concertElement, spec.titleSelector),
+            artists = spec.document.selectTexts(concertElement, spec.artistSelector).flatMap { parseArtists(it) },
+            date = parseDate(spec.document.selectDateText(concertElement, spec.dateSelector), spec.datePattern),
+            venue = spec.venue
+        )
+    }
 
-fun main() {
-    parseConcerts(
-            url = "https://www.vera-groningen.nl/wp/wp-admin/admin-ajax.php?action=renderProgramme&category=concert&page=1&perpage=80",
-            linkSelector = ".event-link",
-            concertSelector = ".event-wrapper",
-            titleSelector = ".artist",
-            artistSelector = ".artist, .extra",
-            dateSelector = ".date",
-            datePattern = "EEEE d MMMM",
-            venue = Venue("VERA Groningen", "https://www.vera-groningen.nl")
-    ).forEach { println(it) }
-}
-
-private fun selectText(element: Element, selector: String): List<String> =
-        element.select(selector).textNodes().map { it.text() }
-
-private fun selectDate(element: Element, selector: String, datePattern: String): LocalDate {
-    val dateText = selectText(element, selector).joinToString(" ").trim()
+private fun parseDate(dateText: String, datePattern: String): LocalDate {
     val formatter = DateTimeFormatter.ofPattern(datePattern, Locale.ENGLISH)
     val monthDay = MonthDay.parse(dateText, formatter)
     val now = LocalDate.now()
