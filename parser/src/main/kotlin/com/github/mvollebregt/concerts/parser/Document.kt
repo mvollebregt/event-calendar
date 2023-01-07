@@ -15,7 +15,8 @@ interface Document<N, S> {
     /**
      * Selects a text from a single node by applying the selector.
      */
-    fun selectText(node: N, selector: S): String
+    fun selectText(node: N, selector: S): String =
+        selectTexts(node, selector).joinToString(" ")
 
     /**
      * Selects a number of texts from a single node by applying the selector.
@@ -25,11 +26,11 @@ interface Document<N, S> {
     /**
      * Selects a link text from a single node by applying the selector.
      */
-    fun selectLinkText(node: N, selector: S): String
+    fun selectLinkText(node: N, selector: S): String = selectText(node, selector)
 
     /**
      * Selects a date text from a single node by applying the selector.
      */
-    fun selectDateText(node: N, selector: S): String
+    fun selectDateText(node: N, selector: S): String = selectText(node, selector)
 
 }

@@ -4,7 +4,11 @@ import com.github.mvollebregt.concerts.model.Artist
 
 private const val SPLIT_CHARACTERS = "+&"
 private const val PREFIX_CHARACTERS = ":"
-private val TEXTS_THAT_ARE_NOT_ARTISTS = listOf("eurosonic", "more")
+private val TEXTS_THAT_ARE_NOT_ARTISTS = listOf(
+    "eurosonic",
+    "jam sessions",
+    "more"
+) // TODO: fix this for specific venues (e.g. if starts with NH Cafe then no artists)
 
 /**
  * Takes a text containing one or more artists and extracts the individual artists from the text.

@@ -4,11 +4,15 @@ import com.github.mvollebregt.concerts.model.Venue
 import com.github.mvollebregt.concerts.parser.ParseSpec
 import com.github.mvollebregt.concerts.parser.html.CssSelector
 import com.github.mvollebregt.concerts.parser.html.HtmlDocument
+import com.github.mvollebregt.concerts.parser.json.JsonDocument
+import com.github.mvollebregt.concerts.parser.json.JsonPath
+import com.github.mvollebregt.concerts.parser.json.MultipleJsonPaths
 import com.github.mvollebregt.concerts.parser.parseConcerts
+import com.github.mvollebregt.concerts.parser.secondsSinceEpoch
 import java.util.*
 
 fun main() {
-    parseConcerts(simplon).forEach { println(it) }
+    parseConcerts(neushoorn).forEach { println(it) }
 }
 
 val vera = ParseSpec(
@@ -43,4 +47,15 @@ val simplon = ParseSpec(
     dateSelector = CssSelector(".date"),
     datePattern = "EE d MMMM yyyy",
     venue = Venue("Simplon Groningen", "https://www.simplon.nl")
+)
+
+val neushoorn = ParseSpec(
+    document = JsonDocument("https://neushoorn.nl/wp-json/production/v1/all/"),
+    concertSelector = JsonPath(),
+    linkSelector = JsonPath("permalink"),
+    titleSelector = JsonPath("title"),
+    artistSelector = MultipleJsonPaths("title", "subtitle"),
+    dateSelector = JsonPath("event", "datetime"),
+    datePattern = secondsSinceEpoch,
+    venue = Venue("Neushoorn Leeuwarden", "https://www.neushoorn.nl")
 )
