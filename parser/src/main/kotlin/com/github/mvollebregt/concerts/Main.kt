@@ -1,14 +1,13 @@
 package com.github.mvollebregt.concerts
 
 import com.github.mvollebregt.concerts.model.Venue
-import com.github.mvollebregt.concerts.parser.ParseSpec
+import com.github.mvollebregt.concerts.parser.*
 import com.github.mvollebregt.concerts.parser.html.CssSelector
 import com.github.mvollebregt.concerts.parser.html.HtmlDocument
 import com.github.mvollebregt.concerts.parser.json.JsonDocument
-import com.github.mvollebregt.concerts.parser.json.JsonPath
-import com.github.mvollebregt.concerts.parser.json.MultipleJsonPaths
-import com.github.mvollebregt.concerts.parser.parseConcerts
-import com.github.mvollebregt.concerts.parser.secondsSinceEpoch
+import com.github.mvollebregt.concerts.parser.json.jsonPath
+import com.github.mvollebregt.concerts.parser.json.multipleJsonPaths
+import org.jsoup.parser.Parser
 import java.util.*
 
 fun main() {
@@ -21,6 +20,7 @@ val vera = ParseSpec(
     linkSelector = CssSelector(".event-link"),
     titleSelector = CssSelector(".artist", directTextNodesOnly = true),
     artistSelector = CssSelector(".artist, .extra", directTextNodesOnly = true),
+    exclude = textEquals("eurosonic"),
     dateSelector = CssSelector(".date"),
     datePattern = "EEEE d MMMM",
     dateLocale = Locale.ENGLISH,
@@ -51,11 +51,13 @@ val simplon = ParseSpec(
 
 val neushoorn = ParseSpec(
     document = JsonDocument("https://neushoorn.nl/wp-json/production/v1/all/"),
-    concertSelector = JsonPath(),
-    linkSelector = JsonPath("permalink"),
-    titleSelector = JsonPath("title"),
-    artistSelector = MultipleJsonPaths("title", "subtitle"),
-    dateSelector = JsonPath("event", "datetime"),
+    concertSelector = jsonPath(),
+    linkSelector = jsonPath("permalink"),
+    titleSelector = jsonPath("title"),
+    artistSelector = multipleJsonPaths("title", "subtitle"),
+    exclude = textStartsWith("NH Café", "Xolar") + textEquals("REMIND", "UNPLUGGED", "Dubstance"),
+    dateSelector = jsonPath("event", "datetime"),
     datePattern = secondsSinceEpoch,
-    venue = Venue("Neushoorn Leeuwarden", "https://www.neushoorn.nl")
+    venue = Venue("Neushoorn Leeuwarden", "https://www.neushoorn.nl"),
+    transform = { Parser.unescapeEntities(it, true) }
 )

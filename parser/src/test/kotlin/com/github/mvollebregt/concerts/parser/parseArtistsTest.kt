@@ -45,7 +45,7 @@ class ParseArtistsTest {
             textContainingArtists: String,
             expectedResult: List<Artist>
     ) {
-        assertThat(parseArtists(textContainingArtists, findArtist)).isEqualTo(expectedResult)
+        assertThat(parseArtists(textContainingArtists, emptyList(), findArtist)).isEqualTo(expectedResult)
     }
 
     companion object {

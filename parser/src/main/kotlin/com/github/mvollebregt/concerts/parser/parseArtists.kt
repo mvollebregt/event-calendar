@@ -4,11 +4,7 @@ import com.github.mvollebregt.concerts.model.Artist
 
 private const val SPLIT_CHARACTERS = "+&"
 private const val PREFIX_CHARACTERS = ":"
-private val TEXTS_THAT_ARE_NOT_ARTISTS = listOf(
-    "eurosonic",
-    "jam sessions",
-    "more"
-) // TODO: fix this for specific venues (e.g. if starts with NH Cafe then no artists)
+private const val POSTFIX_CHARACTERS = "@"
 
 /**
  * Takes a text containing one or more artists and extracts the individual artists from the text.
@@ -18,19 +14,24 @@ private val TEXTS_THAT_ARE_NOT_ARTISTS = listOf(
  */
 fun parseArtists(
     textContainingArtists: String,
-    findArtist: (String) -> Artist? = ::findArtist
+    exclude: List<(String) -> Boolean>,
+    findArtist: (String) -> Artist? = ::findArtist,
 ): List<Artist> {
     // check the whole text against the database
     val trimmedText = textContainingArtists.trim()
-    return if (TEXTS_THAT_ARE_NOT_ARTISTS.contains(trimmedText.lowercase()))
+    return if (exclude.any { it(trimmedText) })
         emptyList()
     else {
         val wholeTextResult = listOfNotNull(findArtist(trimmedText))
-        // if the text contains split characters, split it
-        val splitResults = splitByFirstFoundCharacter(textContainingArtists, SPLIT_CHARACTERS).ifEmpty {
-            // otherwise, try to remove special prefixes from the text
-            listOfNotNull(splitByFirstFoundCharacter(textContainingArtists, PREFIX_CHARACTERS).lastOrNull())
-        }.flatMap { parseArtists(it, findArtist) }
+        // remove postfixes from the text
+        val splitResults =
+            listOfNotNull(splitByFirstFoundCharacter(textContainingArtists, POSTFIX_CHARACTERS).firstOrNull()).ifEmpty {
+                // otherwise: if the text contains split characters, split it
+                splitByFirstFoundCharacter(textContainingArtists, SPLIT_CHARACTERS).ifEmpty {
+                    // otherwise, try to remove special prefixes from the text
+                    listOfNotNull(splitByFirstFoundCharacter(textContainingArtists, PREFIX_CHARACTERS).lastOrNull())
+                }
+            }.flatMap { parseArtists(it, exclude, findArtist) }
         wholeTextResult + splitResults
     }
 }

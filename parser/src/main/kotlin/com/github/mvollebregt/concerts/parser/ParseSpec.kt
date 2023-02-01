@@ -12,5 +12,7 @@ data class ParseSpec<N, S>(
     val dateSelector: S,
     val datePattern: String,
     val dateLocale: Locale = Locale.forLanguageTag("nl-NL"),
-    val venue: Venue
+    val venue: Venue,
+    val exclude: List<(String) -> Boolean> = emptyList(),
+    val transform: (String) -> String = { it }
 )
