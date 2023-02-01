@@ -11,7 +11,7 @@ import org.jsoup.parser.Parser
 import java.util.*
 
 fun main() {
-    parseConcerts(neushoorn).forEach { println(it) }
+    parseConcerts(paradiso).forEach { println(it) }
 }
 
 val vera = ParseSpec(
@@ -60,4 +60,16 @@ val neushoorn = ParseSpec(
     datePattern = secondsSinceEpoch,
     venue = Venue("Neushoorn Leeuwarden", "https://www.neushoorn.nl"),
     transform = { Parser.unescapeEntities(it, true) }
+)
+
+val paradiso = ParseSpec(
+    document = JsonDocument("https://api.paradiso.nl/api/events?lang=nl&start_time=now&sort=date&order=asc&categories=1100&limit=200&with=locations"),
+    concertSelector = jsonPath(),
+    linkSelector = jsonPath("ticket_url"),
+    titleSelector = jsonPath("title"),
+    artistSelector = jsonPath("title"),
+    dateSelector = jsonPath("start_date_time"),
+    datePattern = "yyyy-MM-dd HH:mm:ss",
+    venue = Venue("Paradiso Amsterdam", "https://www.paradiso.nl"),
+    transform = { it.replace("\\/", "/") }
 )
